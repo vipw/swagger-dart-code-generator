@@ -103,6 +103,22 @@ const $name(this.value);
   String generateFromJsonToJson() {
     final type = isInteger ? 'int' : 'String';
 
+    String getEnumMapping() {
+      if (type == 'String') {
+        return '''
+if (${name.camelCase} is String) {
+  return enums.$name.values.firstWhereOrNull((e) => e.value?.toLowerCase() == ${name.camelCase}?.toLowerCase()) ?? defaultValue ?? enums.$name.swaggerGeneratedUnknown;
+} else {
+  return defaultValue ?? enums.$name.swaggerGeneratedUnknown;
+}
+         ''';
+      } else {
+        return '''
+return enums.$name.values.firstWhereOrNull((e) => e.value == ${name.camelCase}) ?? defaultValue ?? enums.$name.swaggerGeneratedUnknown;
+        ''';
+      }
+    }
+
     return '''
 $type? ${name.camelCase}ToJson(enums.$name? ${name.camelCase}) {
   return ${name.camelCase}?.value;
@@ -112,8 +128,7 @@ enums.$name ${name.camelCase}FromJson(
   Object? ${name.camelCase},
   [enums.$name? defaultValue,]
   ) {
-
-return enums.$name.values.firstWhereOrNull((e) => e.value == ${name.camelCase}) ?? defaultValue ?? enums.$name.swaggerGeneratedUnknown;
+  ${getEnumMapping()}
 }
 
 
